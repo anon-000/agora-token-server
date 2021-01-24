@@ -9,7 +9,7 @@ const APP_CERTIFICATE = "paste your certificate";
 const app = express();
 var crypto = require("crypto");
 
-
+// create random channel name
 function getChannelName(){ 
   var id = crypto.randomBytes(6).toString('hex');
   return "channel-"+id;
