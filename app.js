@@ -7,6 +7,13 @@ const APP_ID = 'paste your app id';
 const APP_CERTIFICATE = "paste your certificate";
 
 const app = express();
+var crypto = require("crypto");
+
+
+function getChannelName(){ 
+  var id = crypto.randomBytes(6).toString('hex');
+  return "channel-"+id;
+}
 
 
 const nocache = (req, resp, next) => {
@@ -19,11 +26,7 @@ const nocache = (req, resp, next) => {
 const generateAccessToken = (req, resp) => {
   // set response header
   resp.header('Acess-Control-Allow-Origin', '*');
-  // get channel name
-  const channelName = req.query.channelName;
-  if (!channelName) {
-    return resp.status(500).json({ 'error': 'channel is required' });
-  }
+
   // get uid 
   let uid = req.query.uid;
   if(!uid || uid == '') {
@@ -41,16 +44,18 @@ const generateAccessToken = (req, resp) => {
   } else {
     expireTime = parseInt(expireTime, 10);
   }
-    // calculate privilege expire time
-    const currentTime = Math.floor(Date.now() / 1000);
-    const privilegeExpireTime = currentTime + expireTime;
-    // build the token
-    const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
-    // return the token
-    return resp.json({ 'token': token });
+  // calculate privilege expire time
+  const currentTime = Math.floor(Date.now() / 1000);
+  const privilegeExpireTime = currentTime + expireTime;
+
+  // create random channel name
+  var channelName = getChannelName();
+
+  // build the token
+  const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
+  // return the token
+  return resp.json({ 'channelName' : channelName,'token': token });
 }
-
-
 
 app.get('/agora-token', nocache, generateAccessToken);
 
