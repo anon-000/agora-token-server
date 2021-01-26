@@ -59,7 +59,9 @@ const generateAccessToken = (req, resp) => {
 
 app.get('/agora-token', nocache, generateAccessToken);
 
-app.listen(PORT, () => {
-  console.log(`Listening on port: ${PORT}`);
-});
+app.set( 'port', ( process.env.PORT || PORT ));
 
+// Start node server
+app.listen( app.get( 'port' ), function() {
+  console.log( 'Node server is running on port ' + app.get( 'port' ));
+  });
